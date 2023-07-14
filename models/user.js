@@ -4,14 +4,14 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    minLenght: 2,
-    maxLenght: 30,
+    minLength: 2,
+    maxLength: 30,
   },
   about: {
     type: String,
     required: true,
-    minLenght: 2,
-    maxLenght: 30,
+    minLength: 2,
+    maxLength: 30,
   },
   avatar: {
     type: String,
