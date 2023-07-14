@@ -48,19 +48,6 @@ const updateUser = (req, res) => {
   const { name, about, avatar } = req.body;
   const userId = req.user._id;
 
-  if (Object.keys(req.body).some((key) => !(key in User.schema.obj))) {
-    const requestFields = Object.keys(req.body).join(', ');
-    const schemaFields = Object.keys(User.schema.obj).join(', ');
-
-    BadRequestError
-      .sendError({
-        res,
-        message: messages.user.updateWrongFields,
-        payload: `Поля ${requestFields} не соответствуют ${schemaFields}`,
-      });
-    return;
-  }
-
   User.findByIdAndUpdate(
     userId,
     { name, about, avatar },
