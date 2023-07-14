@@ -24,3 +24,6 @@ app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log('Ссылка на сервер');
 });
+app.use((req, res) => {
+  res.status(404).send({ message: 'Страница не найдена' });
+});
