@@ -1,5 +1,10 @@
+import bcrypt from 'bcrypt';
+
+const jwt = require('jsonwebtoken');
 const { User } = require('../models/user');
 const { NotFoundError } = require('../utils/errors/NotFoundError');
+const { ConflictError } = require('../utils/errors/ConflictError');
+const { BadRequestError } = require('../utils/errors/BadRequestError');
 const { errorStatuses } = require('../utils/errors/constans');
 const { handleDefaultError } = require('../utils/errors/handleDefaultError');
 
@@ -10,9 +15,13 @@ const getUsers = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
+  User.create({
+    name, about, avatar, email, password,
+  })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -69,10 +78,29 @@ const updateUser = (req, res) => {
       handleDefaultError(res);
     });
 };
+const getCurrentUser = (req, res, next) => {
+  const { _id } = req.user;
+  User.findById(_id).then((user) => {
+    // проверяем, есть ли пользователь с таким id
+    if (!user) {
+      return next(new NotFoundError('Пользователь не найден.'));
+    }
+    // возвращаем пользователя, если он есть
+    return res.status(200).send(user);
+  }).catch(next);
+};
+
+const login = (req, res) => {
+  const { password, email } = req.body;
+  User.findOne({ email })
+    .select('+password');
+    
+};
 
 module.exports = {
   getUsers,
   createUser,
   getUserById,
   updateUser,
+  getCurrentUser,
 };
