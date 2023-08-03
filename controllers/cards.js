@@ -1,30 +1,23 @@
 const { Card } = require('../models/card');
 const { NotFoundError } = require('../utils/errors/NotFoundError');
-const { errorStatuses } = require('../utils/errors/constans');
-const { handleDefaultError } = require('../utils/errors/handleDefaultError');
+const { ForbiddenError } = require('../utils/errors/ForbiddenError');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(() => handleDefaultError(res));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
     .then((card) => res.status(201).send(card))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(errorStatuses.badRequest).send({ message: 'Переданы некорректные данные при создании карточки.' });
-        return;
-      }
-      handleDefaultError(res);
-    });
+    .catch(next);
 };
 
-const getCardById = (req, res) => {
+const getCardById = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
@@ -32,43 +25,30 @@ const getCardById = (req, res) => {
       throw new NotFoundError('Карточка не найдена');
     })
     .then((card) => res.send(card))
-    .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(errorStatuses.notFound).send({ message: err.message });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(errorStatuses.badRequest).send({ message: 'Передан некорректный id' });
-        return;
-      }
-      handleDefaultError(res);
-    });
+    .catch(next);
 };
 
-const deleteCardById = (req, res) => {
+const deleteCardById = (req, res, next) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndDelete(cardId)
+  Card.findById(cardId)
     .orFail(() => {
       throw new NotFoundError('Карточка не найдена');
     })
-    .then(() => {
-      res.send({ message: 'Карточка успешно удалена' });
+    .then((card) => {
+      if (card.owner.toString() !== req.user._id) {
+        throw new ForbiddenError('Удалять можно только свою карточку');
+      }
+      Card.findByIdAndDelete(cardId)
+        .then(() => {
+          res.send({ message: 'Карточка успешно удалена' });
+        })
+        .catch(next);
     })
-    .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(errorStatuses.notFound).send({ message: err.message });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(errorStatuses.badRequest).send({ message: 'Передан некорректный id' });
-        return;
-      }
-      handleDefaultError(res);
-    });
+    .catch(next);
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findByIdAndUpdate(
@@ -82,20 +62,10 @@ const likeCard = (req, res) => {
     .then((card) => {
       res.send(card);
     })
-    .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(errorStatuses.notFound).send({ message: err.message });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(errorStatuses.badRequest).send({ message: 'Передан некорректный id' });
-        return;
-      }
-      handleDefaultError(res);
-    });
+    .catch(next);
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findByIdAndUpdate(
@@ -109,17 +79,7 @@ const dislikeCard = (req, res) => {
     .then((card) => {
       res.send(card);
     })
-    .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(errorStatuses.notFound).send({ message: err.message });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(errorStatuses.badRequest).send({ message: 'Передан некорректный id' });
-        return;
-      }
-      handleDefaultError(res);
-    });
+    .catch(next);
 };
 
 module.exports = {

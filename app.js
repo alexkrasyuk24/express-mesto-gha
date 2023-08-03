@@ -1,9 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const { errors } = require('celebrate');
 const { cardsRouter } = require('./routes/cards');
 const { usersRouter } = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
+const { errorsMiddleware } = require('./middlewares/errors');
+const { authMiddleware } = require('./middlewares/auth');
+const { celebrateSignIn, celebrateSignUp } = require('./celebrate/users');
 
 const { PORT = 3000 } = process.env;
 
@@ -13,15 +17,20 @@ app.use(helmet());
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
-app.use('/cards', cardsRouter);
-app.use('/users', usersRouter);
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log('Ссылка на сервер');
-});
+app.post('/signup', celebrateSignUp, createUser);
+app.post('/signin', celebrateSignIn, login);
+
+app.use('/cards', authMiddleware, cardsRouter);
+app.use('/users', authMiddleware, usersRouter);
+
 app.use((req, res) => {
   res.status(404).send({ message: 'Страница не найдена' });
 });
 
-app.post('/signup', signUp, createUser);
-app.post('/signin', signIn, login);
+app.use(errors());
+app.use(errorsMiddleware);
+
+app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
+  console.log('Сервер запущен');
+});
