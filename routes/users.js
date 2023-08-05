@@ -5,11 +5,12 @@ const {
 const {
   celebrateUpdateUser,
   celebrateUpdateAvatar,
+  celebrateUserId,
 } = require('../celebrate/users');
 
 usersRouter.get('/', getUsers);
-usersRouter.get('/users/me', getCurrentUser);
-usersRouter.get('/:userId', getUserById);
+usersRouter.get('/me', getCurrentUser);
+usersRouter.get('/:userId', celebrateUserId, getUserById);
 usersRouter.patch('/me', celebrateUpdateUser, updateUser);
 usersRouter.patch('/me/avatar', celebrateUpdateAvatar, updateUser);
 

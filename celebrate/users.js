@@ -31,9 +31,16 @@ const celebrateUpdateAvatar = celebrate({
   }),
 });
 
+const celebrateUserId = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().required().length(24).hex(),
+  }),
+});
+
 module.exports = {
   celebrateSignUp,
   celebrateSignIn,
   celebrateUpdateUser,
   celebrateUpdateAvatar,
+  celebrateUserId,
 };
