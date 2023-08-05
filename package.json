@@ -10,7 +10,7 @@
     "lint:fix": "npx eslint . --fix"
   },
   "keywords": [],
-  "author": "",
+  "author": "Krasyuk Alexey",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.44.0",

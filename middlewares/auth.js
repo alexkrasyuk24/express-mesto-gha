@@ -6,7 +6,8 @@ const authMiddleware = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Нужна авторизация.');
+    next(new UnauthorizedError('Нужна авторизация.'));
+    return;
   }
 
   const token = authorization.replace('Bearer ', '');
