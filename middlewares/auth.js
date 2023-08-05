@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const UnauthorizedError = require('../utils/errors/UnauthorizedError');
+const { UnauthorizedError } = require('../utils/errors/UnauthorizedError');
 const { SECRET_KEY } = require('../utils/errors/constans');
 
 const authMiddleware = (req, res, next) => {
