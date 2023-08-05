@@ -7,7 +7,7 @@ const errorStatuses = {
 
 const SECRET_KEY = 'some-secret-key';
 
-const imageUrlRegex = /(https?:\/\/.*\.(?:png|jpg))/i;
+const imageUrlRegex = /https?:\/\/(www.)?[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=,]*/;
 
 module.exports = {
   errorStatuses,

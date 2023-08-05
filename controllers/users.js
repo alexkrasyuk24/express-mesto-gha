@@ -95,7 +95,7 @@ const login = (req, res, next) => {
       throw new NotFoundError('Пользователь не найден');
     })
     .then((user) => {
-      bcrypt.compare(password.user.password)
+      bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             throw new UnauthorizedError('Передан неверный логин или пароль');
