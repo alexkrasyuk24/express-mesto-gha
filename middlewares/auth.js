@@ -16,7 +16,8 @@ const authMiddleware = (req, res, next) => {
   try {
     payload = jwt.verify(token, SECRET_KEY);
   } catch (err) {
-    throw new UnauthorizedError('Нужна авторизация.');
+    next(new UnauthorizedError('Нужна авторизация.'));
+    return;
   }
 
   req.user = payload;
